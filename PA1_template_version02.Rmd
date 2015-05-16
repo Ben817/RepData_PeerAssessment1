@@ -1,11 +1,11 @@
 ---
 title: 'Reproducible Research: Peer Assessment 1'
 output:
-  html_document:
-    keep_md: yes
-  pdf_document: default
-  word_document: default
-  
+html_document:
+keep_md: yes
+pdf_document: default
+word_document: default
+
 ---
 
 
@@ -13,6 +13,7 @@ output:
 Change working directory and load the data.
 ```{r,echo=TRUE}
 library(ggplot2)
+library(xtable)
 setwd("~/Documents/Diverse/Coursera Reproducible Research /Peer Assesment 1/Peeras1/RepData_PeerAssessment1/")
 df <- read.csv("activity.csv") #Read and convert to data.table
 df$date.new <- strptime(paste(as.character(df$date),sprintf("%04.f",df$interval)),format = "%Y-%m-%d %H%M") #Create a new date column in format POSIX
@@ -24,9 +25,17 @@ Below is the code to produce a histogram on number of steps per day.
 ```{r,echo=TRUE}
 df.perday <- aggregate(steps~date,df,sum)
 qplot(steps,data=df.perday,geom="histogram",ylim=c(0,10),xlab="Number of steps per day",ylab="Count",binwidth=500)
+summary(df.perday)
 ```
 
-Here the the code for producing hte mean and average.
+Here the the code for producing the mean and average total number of steps per day.
+```{r,echo=TRUE,results='asis'}
+steps.median <- median(df.perday$steps)
+steps.mean <- mean(df.perday$steps)
+p <- xtable(data.frame("Median number of steps per day"=steps.median,"Mean number of steps per day"=steps.mean))
+print(p,typ="html")
+```
+
 
 
 ## What is the average daily activity pattern?
