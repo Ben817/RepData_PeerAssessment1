@@ -14,9 +14,11 @@ Change working directory and load the data.
 ```{r,echo=TRUE}
 library(ggplot2)
 library(xtable)
+library(scales) #To be able to format time in ggplots
 setwd("~/Documents/Diverse/Coursera Reproducible Research /Peer Assesment 1/Peeras1/RepData_PeerAssessment1/")
 df <- read.csv("activity.csv") #Read and convert to data.table
 df$date.new <- strptime(paste(as.character(df$date),sprintf("%04.f",df$interval)),format = "%Y-%m-%d %H%M") #Create a new date column in format POSIX
+df$time <- strptime(sprintf("%04.f",df$interval),format = "%H%M") #Create a new date column in format POSIX
 
 ```
 
@@ -38,7 +40,16 @@ print(p,typ="html")
 
 
 
-## What is the average daily activity pattern?
+### What is the average daily activity pattern?
+```{r,echo=TRUE}
+steps.mean.per.day <- aggregate(steps~interval,df,mean)
+steps.mean.per.day$hour <- strptime(sprintf("%04.f",steps.mean.per.day$interval),format = "%H%M") #Create a new date column in format POSIX
+steps.mean.per.day$hour <- as.POSIXct(steps.mean.per.day$hour)
+p <- ggplot(steps.mean.per.day,aes(hour,steps)) + geom_line()
+p <- p + scale_x_datetime(breaks = date_breaks("2 hour"),labels = date_format("%H:%m"))
+p <- p + labs(list(title="Average number of steps per 5 minutes \n for the whole measurement period",y="Average number of steps per 5 minutes",x="Time"))
+p
+```
 
 
 
