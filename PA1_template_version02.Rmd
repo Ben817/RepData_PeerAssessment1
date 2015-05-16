@@ -10,6 +10,15 @@ output:
 
 
 ## Loading and preprocessing the data
+Change working directory and load the data.
+```{r,echo=TRUE}
+setwd("~/Documents/Diverse/Coursera Reproducible Research /Peer Assesment 1/Peeras1/RepData_PeerAssessment1/")
+df <- read.csv("activity.csv") #Read and convert to data.table
+df$date.new <- strptime(paste(as.character(df$date),sprintf("%04.f",df$interval)),format = "%Y-%m-%d %H%M")
+
+summary(df)
+
+```
 
 
 
