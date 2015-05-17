@@ -14,6 +14,7 @@ Change working directory and load the data.
 ```{r,echo=TRUE}
 library(ggplot2)
 library(xtable)
+library(data.table)
 library(scales) #To be able to format time in ggplots
 setwd("~/Documents/Diverse/Coursera Reproducible Research /Peer Assesment 1/Peeras1/RepData_PeerAssessment1/")
 df <- read.csv("activity.csv") #Read and convert to data.table
@@ -71,7 +72,7 @@ temp <-merge(df.imputed[na.ind,],steps.mean.per.day,by="interval",all.x=T)#looku
 df.imputed <- merge(df.imputed,temp,by=c("interval","date"),all.x=T) #Combined table with both all existing values and a column with replace values.
 na.ind <- which(is.na(df.imputed$steps),arr.ind = T) #new indices of NA rows since the table changed structure.
 df.imputed[na.ind,]$steps <- df.imputed[na.ind,]$steps.y #Assign the lookuped value into the NAs.
-df.imputed <- df.imputed[-c(4:6)] #drop unecessary columns
+df.imputed <- df.imputed[-c(5:10)] #drop unecessary columns
 
 df.imputed.perday <- aggregate(steps~date,df.imputed,sum)
 qplot(steps,data=df.imputed.perday,geom="histogram",ylim=c(0,10),xlab="Number of steps per day",ylab="Count",binwidth=500)
@@ -90,3 +91,18 @@ Imputing data had the follwing impact:
 The reason is that the imputed values are  based on the mean and median of the total values and therefore these should not change too much.
 
 ### Are there differences in activity patterns between weekdays and weekends?
+```{r,echo=TRUE}
+df.imputed$daytype <- weekdays(df.imputed$date.new.x) %in% c("Söndag","Lördag") #create a new column "daytype" which contains TRUE for weekends
+df.imputed$daytype <- as.factor(ifelse(df.imputed$daytype,"weekend","weekday")) #Create a factor with labels Weekend and weekdays.
+df.imputed.split <- split(df.imputed,df.imputed$daytype) #Create a list with two elements, one for weekdays and one for weekends.
+df.imputed.split <- lapply(df.imputed.split,function(x) aggregate(x$steps~x$interval,x,mean))#group per interval per list element
+lns <- sapply(df.imputed.split,nrow)
+df.imputed.split <- do.call(rbind,df.imputed.split)
+newcol <- c(rep("weekday",lns[1]),rep("weekend",lns[2]))
+df.imputed.split <- cbind(df.imputed.split,datetype=newcol)
+setnames(df.imputed.split,c("interval","steps","datetype"))
+qplot(interval,steps,data=df.imputed.split,facets=datetype~.,geom="line",ylab="Average number of steps per interval")
+
+```
+
+
