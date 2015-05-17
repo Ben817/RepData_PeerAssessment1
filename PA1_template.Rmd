@@ -15,7 +15,7 @@ Change working directory and load the data.
 library(ggplot2)
 library(xtable)
 library(data.table)
-library(scales) #To be able to format time in ggplots
+library(scales)  #To be able to format time in ggplots
 setwd("~/Documents/Diverse/Coursera Reproducible Research /Peer Assesment 1/Peeras1/RepData_PeerAssessment1/")
 df <- read.csv("activity.csv") #Read and convert to data.table
 df$date.new <- strptime(paste(as.character(df$date),sprintf("%04.f",df$interval)),format = "%Y-%m-%d %H%M") #Create a new date column in format POSIX

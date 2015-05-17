@@ -16,7 +16,7 @@ Change working directory and load the data.
 library(ggplot2)
 library(xtable)
 library(data.table)
-library(scales) #To be able to format time in ggplots
+library(scales)  #To be able to format time in ggplots
 setwd("~/Documents/Diverse/Coursera Reproducible Research /Peer Assesment 1/Peeras1/RepData_PeerAssessment1/")
 df <- read.csv("activity.csv") #Read and convert to data.table
 df$date.new <- strptime(paste(as.character(df$date),sprintf("%04.f",df$interval)),format = "%Y-%m-%d %H%M") #Create a new date column in format POSIX
@@ -58,7 +58,7 @@ print(p,typ="html")
 ```
 
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Sun May 17 22:59:01 2015 -->
+<!-- Sun May 17 23:11:11 2015 -->
 <table border=1>
 <tr> <th>  </th> <th> Median.number.of.steps.per.day </th> <th> Mean.number.of.steps.per.day </th>  </tr>
   <tr> <td align="right"> 1 </td> <td align="right"> 10765 </td> <td align="right"> 10766.19 </td> </tr>
@@ -119,7 +119,7 @@ print(p,typ="html")
 ```
 
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Sun May 17 22:59:02 2015 -->
+<!-- Sun May 17 23:11:12 2015 -->
 <table border=1>
 <tr> <th>  </th> <th> Median.number.of.steps.per.day </th> <th> Mean.number.of.steps.per.day </th>  </tr>
   <tr> <td align="right"> 1 </td> <td align="right"> 10766.19 </td> <td align="right"> 10766.19 </td> </tr>

@@ -208,7 +208,7 @@ hr {
 <pre><code class="r">library(ggplot2)
 library(xtable)
 library(data.table)
-library(scales) #To be able to format time in ggplots
+library(scales)  #To be able to format time in ggplots
 setwd(&quot;~/Documents/Diverse/Coursera Reproducible Research /Peer Assesment 1/Peeras1/RepData_PeerAssessment1/&quot;)
 df &lt;- read.csv(&quot;activity.csv&quot;) #Read and convert to data.table
 df$date.new &lt;- strptime(paste(as.character(df$date),sprintf(&quot;%04.f&quot;,df$interval)),format = &quot;%Y-%m-%d %H%M&quot;) #Create a new date column in format POSIX
@@ -248,7 +248,7 @@ print(p,typ=&quot;html&quot;)
 
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
 
-<!-- Sun May 17 22:59:01 2015 -->
+<!-- Sun May 17 23:11:11 2015 -->
 
 <table border=1>
 <tr> <th>  </th> <th> Median.number.of.steps.per.day </th> <th> Mean.number.of.steps.per.day </th>  </tr>
@@ -306,7 +306,7 @@ print(p,typ=&quot;html&quot;)
 
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
 
-<!-- Sun May 17 22:59:02 2015 -->
+<!-- Sun May 17 23:11:12 2015 -->
 
 <table border=1>
 <tr> <th>  </th> <th> Median.number.of.steps.per.day </th> <th> Mean.number.of.steps.per.day </th>  </tr>
