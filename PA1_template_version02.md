@@ -1,4 +1,12 @@
-# Reproducible Research: Peer Assessment 1
+---
+title: 'Reproducible Research: Peer Assessment 1'
+output:
+html_document:
+keep_md: yes
+pdf_document: default
+word_document: default
+
+---
 
 
 ### Loading and preprocessing the data
@@ -7,9 +15,11 @@ Change working directory and load the data.
 ```r
 library(ggplot2)
 library(xtable)
+library(scales) #To be able to format time in ggplots
 setwd("~/Documents/Diverse/Coursera Reproducible Research /Peer Assesment 1/Peeras1/RepData_PeerAssessment1/")
 df <- read.csv("activity.csv") #Read and convert to data.table
 df$date.new <- strptime(paste(as.character(df$date),sprintf("%04.f",df$interval)),format = "%Y-%m-%d %H%M") #Create a new date column in format POSIX
+df$time <- strptime(sprintf("%04.f",df$interval),format = "%H%M") #Create a new date column in format POSIX
 ```
 
 ### What is mean total number of steps taken per day?
@@ -20,7 +30,7 @@ df.perday <- aggregate(steps~date,df,sum)
 qplot(steps,data=df.perday,geom="histogram",ylim=c(0,10),xlab="Number of steps per day",ylab="Count",binwidth=500)
 ```
 
-![](PA1_template_version02_files/figure-html/unnamed-chunk-2-1.png) 
+![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-2-1.png) 
 
 ```r
 summary(df.perday)
@@ -42,25 +52,83 @@ Here the the code for producing the mean and average total number of steps per d
 ```r
 steps.median <- median(df.perday$steps)
 steps.mean <- mean(df.perday$steps)
-p <- xtable(data.frame("Median number"=steps.median,Mean=steps.mean))
+p <- xtable(data.frame("Median number of steps per day"=steps.median,"Mean number of steps per day"=steps.mean))
 print(p,typ="html")
 ```
 
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Sat May 16 23:20:20 2015 -->
+<!-- Sun May 17 16:59:27 2015 -->
 <table border=1>
-<tr> <th>  </th> <th> Median.number </th> <th> Mean </th>  </tr>
+<tr> <th>  </th> <th> Median.number.of.steps.per.day </th> <th> Mean.number.of.steps.per.day </th>  </tr>
   <tr> <td align="right"> 1 </td> <td align="right"> 10765 </td> <td align="right"> 10766.19 </td> </tr>
    </table>
 
+### What is the average daily activity pattern?
+
+```r
+steps.mean.per.day <- aggregate(steps~interval,df,mean) #calculate mean per 5-minute interval.
+steps.mean.per.day$hour <- strptime(sprintf("%04.f",steps.mean.per.day$interval),format = "%H%M") #Create a new date column in format POSIX
+steps.mean.per.day$hour <- as.POSIXct(steps.mean.per.day$hour)#format as POSIXct
+steps.max.count <- steps.mean.per.day[which.max(steps.mean.per.day$steps),]$steps #find max number of steps during an average day.
+steps.max.count <- sprintf("%.1f",steps.max.count) #formatting
+steps.max.hour <- steps.mean.per.day[which.max(steps.mean.per.day$steps),]$hour #find the hour for the max number
+steps.max.hour <- format(steps.max.hour,"%H:%M")
+p <- ggplot(steps.mean.per.day,aes(hour,steps)) + geom_line(size=.3)
+p <- p + scale_x_datetime(breaks = date_breaks("2 hour"),labels = date_format("%H:%m"))
+p <- p + labs(list(title="Average number of steps per 5 minutes \n for the whole measurement period",y="Average number of steps per 5 minutes",x="Time"))
+p
+```
+
+![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4-1.png) 
+
+The 5-minute interval that contains most average number of steps is **08:35**. This interval have on average **206.2** steps.
+
+### Imputing missing values
+
+```r
+missing.count <- sum(is.na(df$steps))
+```
+The total number of missing values in the data is **2304**.
+Below is the code for imputing data into the NAs.  
+The strategy for imputing is to use the average 5-minute interval value and impute this into NA for the with the same 5-minute interval.  
 
 
-## What is the average daily activity pattern?
 
+```r
+df.imputed <- df #create a copy of df 
+na.ind <- which(is.na(df.imputed$steps),arr.ind = T) #find the indices where steps are NA.
+temp <-merge(df.imputed[na.ind,],steps.mean.per.day,by="interval",all.x=T)#lookup the 5-minute interval value and place in an intermediate table.
+df.imputed <- merge(df.imputed,temp,by=c("interval","date"),all.x=T) #Combined table with both all existing values and a column with replace values.
+na.ind <- which(is.na(df.imputed$steps),arr.ind = T) #new indices of NA rows since the table changed structure.
+df.imputed[na.ind,]$steps <- df.imputed[na.ind,]$steps.y #Assign the lookuped value into the NAs.
+df.imputed <- df.imputed[-c(4:6)] #drop unecessary columns
 
+df.imputed.perday <- aggregate(steps~date,df.imputed,sum)
+qplot(steps,data=df.imputed.perday,geom="histogram",ylim=c(0,10),xlab="Number of steps per day",ylab="Count",binwidth=500)
+```
 
-## Imputing missing values
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-6-1.png) 
 
+```r
+steps.median <- median(df.imputed.perday$steps)
+steps.mean <- mean(df.imputed.perday$steps)
 
+p <- xtable(data.frame("Median number of steps per day"=steps.median,"Mean number of steps per day"=steps.mean))
+print(p,typ="html")
+```
 
-## Are there differences in activity patterns between weekdays and weekends?
+<!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
+<!-- Sun May 17 16:59:28 2015 -->
+<table border=1>
+<tr> <th>  </th> <th> Median.number.of.steps.per.day </th> <th> Mean.number.of.steps.per.day </th>  </tr>
+  <tr> <td align="right"> 1 </td> <td align="right"> 10766.19 </td> <td align="right"> 10766.19 </td> </tr>
+   </table>
+Imputing data had the follwing impact:  
+
+* The mean steps per day is the same as without imputing.
+
+* The median steps per day increased a little when imputed.
+
+The reason is that the imputed values are  based on the mean and median of the total values and therefore these should not change too much.
+
+### Are there differences in activity patterns between weekdays and weekends?
